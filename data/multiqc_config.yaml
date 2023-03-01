@@ -1,0 +1,14 @@
+title: "Genotube Report"
+subtitle: "Analysis summary"
+
+report_header_info:
+ - Contact E-mail: "adlemeur@gmail.com"
+
+module_order:
+ - kraken
+ - samtools
+ - fastqc
+ - picard
+ - gatk
+ - bcftools
+ - snpeff

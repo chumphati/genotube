@@ -1,0 +1,94 @@
+#!/bin/sh
+
+Genotube Analysis Pipeline. Started on 12-11-2021
+
+[HOMEPAGE & DOCUMENTATION]: https://github.com/adrienlemeur/genotube
+
+[AUTHORS]:
+Adrien Le Meur
+Fiona Hak
+with the help of Guislaine Refrégier & Rima Zein Eddine
+
+[VERSION]: 4.0
+[NAME]: Washed Ashore
+
+[RUN GENOTUBE]: nextflow genotube.nf
+
+[OPTIONS & PARAMETER]: Please read the manual for more detailed information on the tool's features.
+
+-resume				 	Resume interrupted intermediary steps (Nextflow automatic functionnality)
+
+--help (optional)				Display this help message and exits.
+--dry (optional)				Create Genotube output folders and exits. Default = ./results
+--results [path/folder]			Folder where intermediary and output files are stored. Genotube will use these files to resume the analysis if interrupted.
+
+
+#MAIN ARGUMENTS
+
+#DOWNLOAD AND FILE IMPORT OPTIONS
+--sra [file] (optional)			Path to a line separated file with NCBI run ID to be download.
+						Default = "data/SRA.txt".
+
+--fastq [path]					Path to a folder with compressed fastq (.fastq.gz and/or fq.gz) for analysis. 
+						/!\ Paired fastq are discriminated based on the presence of "_1" and "_2" strings (and not R1/R2 or other markers)
+
+--bam [path]					Path to a folder with bam alignement files (.bam) for analysis.
+
+--vcf [path]					Path to a folder with compressed vcf (.vcf.gz) for analysis.
+
+--fasta [path]					Path to a folder with compressed or uncompressed (.fa, .fasta, .fa.gz and/or .fasta.gz) fasta samples. 
+						250 mb paired raw reads will be simulated from the fasta.
+
+#FORCE AND SKIP OPTIONS
+--FORCE ['DOWNLOAD', 'TRIM', 'MAP', 'CALL' and/or 'ANN']	Comma separated list of step to FORCE, even if files already have
+--SKIP ['COVERAGE_CHECK', 'PROFILING']			Comma separated lsit of step to SKIP / not perform
+
+
+#REFERENCE SEQUENCE OPTIONS
+--referenceSequence [file]			Compressed fasta sequence for mapping. Default : H37Rv reference strain (NC_000962.3 assembly) in ./data/mtuberculosis/genomes/reference/H37Rv.fa.gz.
+
+--referenceAnnotation [file]			GFF3 annotation file for the provided reference sequence. Default : H37Rv annotation file in ./data/mtuberculosis/genomes/reference/H37Rv.gff.gz.
+
+--target_region [file]				Bed file specifying specific regions to analyse for gene oriented mode. Default : null
+
+#CONTAMINATION OPTION
+--contam_check ['taxo_class', 'compet_mapping', 'none']	Contamination check method to use.
+								Read taxonomic classification with Kraken2, competitive mapping against reference genomes from common contaminants or no contamination
+
+#VARIANT CALLING OPTIONS
+--species ['MTBC', 'other']				Species to consider. Lineage and sublineage calling and in silico AMR prediction are only implemented for M. tuberculosis complex.
+--variant_caller ['gatk', 'samtools' or 'freebayes']	Variant caller to use (gatk haplotype caller, samtools mpileup or freebayes). Default : gatk
+--additional_variants []				Not implemented yet.
+
+#TREE BUILD
+--tree_build ['none', 'classic' or 'fastest']		Phylogenetic tree reconstruciton method (max. likelihood). Classic with RAxML, fastest with fasttree. Default : none
+
+#TAXONOMY OPTIONS
+--taxonomy ['barcode' or 'placement']			Method for strain taxonomical assignation. Default : 'barcode' for MTBC, none for other species.
+							Placement is avalaible for other species if phylogenetical placement file are specified.
+
+#PHYLOGENETICAL PLACEMENT
+--referenceMSA [file]					MSA file with full genome sequence of reference samples.
+--referenceTree [file]					Newick reference tree for phylogenetical placement. Must match the MSA file.
+--referenceModel [file]				RAxML evolution model of the reference tree.
+--referenceTaxo [file]					Reference strain taxonomy.
+
+#SKIP STEPS
+--no_profiling		<OPTIONAL> Don't perform lineage classification and in silico drug resistance.
+--no_quality_check	 <OPTIONAL> Disable the quality check filter.
+					Default : discards sample with mean coverage < 80% and sequencing depth < 10.
+
+#KEEP INTERMEDIARY FILES
+--keep_fastq		  <OPTIONAL> Do not keep all intermediate fastq files.
+--keep_raw_fastq	   <OPTIONAL> Do not keep intermediate raw fastq files.
+--keep_trimmed_fastq    <OPTIONAL> Do not keep intermediate trimmed fastq files.
+
+--keep_bam		    <OPTIONAL> Do not keep all intermediate bam files.
+--keep_raw_bam		<OPTIONAL> Do not keep intermediate raw bam files.
+--keep_processed_bam    <OPTIONAL> Do not keep intermediate processed bam files.
+
+--keep_vcf		    <OPTIONAL> Do not keep intermediate vcf files.
+
+--keep_reports		<OPTIONAL> Do not keep intermediate reports files.
+--keep_coverage	    <OPTIONAL> Do not keep intermediate coverage reports files.
+--keep_metricsreports   <OPTIONAL> Do not keep intermediate metrics reports files.
