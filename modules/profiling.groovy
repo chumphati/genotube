@@ -88,7 +88,7 @@ process resumeStrainInfo {
 	echo -ne "moxifloxacin\tofloxacin\tpara-aminosalicylic_acid" >> all_strain_info.txt
 	echo -ne "\tpyrazinamide\trifampicin\tstreptomycin\n" >> all_strain_info.txt
 
-	join <(sort -k1 $results/AMR/*) <(sort -k1 $results/TAXO/LINEAGE/*) -e 'NA' -t \$'\t' | sort -k4 >> all_strain_info.txt
+	join <(sort -k1 $results/TAXO/SNP_LINEAGE/*) <(sort -k1 $results/AMR/*) -e 'NA' -t \$'\t' | sort -k4 >> all_strain_info.txt
 	cp all_strain_info.txt $results/all_strain_info.txt
 	"""
 }
