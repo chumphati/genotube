@@ -49,7 +49,7 @@ workflow {
 
 		process_fastq(download.out, index.out.samtools_picard_index)
 
-		align(process_fastq.out.all_single_trimmed, process_fastq.out.all_paired_trimmed, index.out.bwa_index)
+		align(process_fastq.out.all_single_trimmed, process_fastq.out.all_paired_trimmed, index.out.bwa_index, index.out.samtools_picard_index)
 		process_bam(align.out.all_mapping, index.out.samtools_picard_index)
 
 		variant_calling(process_bam.out.all_processed_bam, align.out.all_mapping, index.out.samtools_picard_index)

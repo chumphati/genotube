@@ -5,9 +5,9 @@ report_header_info:
  - Contact E-mail: "adlemeur@gmail.com"
 
 module_order:
+ - fastqc
  - kraken
  - samtools
- - fastqc
  - picard
  - gatk
  - bcftools

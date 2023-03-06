@@ -86,7 +86,7 @@ workflow download {
 
 	main:
 		//split the SRA list and channel it
-		SRA = Channel.from(file(params.sra)).splitText().map{it -> it.trim()}.filter( it -> it !=~ /^#/ ) //when nohelp nodry
+		SRA = Channel.from(file(params.sra)).splitText().map{it -> it.trim()}.filter(/^#/) //when nohelp nodry
 
 		foreign_fastq_single = Channel.empty()
 		foreign_fastq_paired = Channel.empty()
@@ -101,7 +101,7 @@ workflow download {
 //				.map{it -> [it.simpleName.split("_1\$|_2\$|_R1\$|_R2\$")[0], it ]}.groupTuple()
 		} else {
 			Channel.fromPath(results+"/FASTQ/RAW/*.{fq,fastq}.gz", followLinks: true)
-				.map{it -> [it.simpleName.split("_1.|_2.")[0], it]}.groupTuple().branch{
+				.map{it -> [it.simpleName.split("_1|_2|_R1|_R2")[0], it]}.groupTuple().branch{
 					paired: it[1].size() == 2
 					single: it[1].size() == 1
 				}.set{ temp }

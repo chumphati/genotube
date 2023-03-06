@@ -9,6 +9,7 @@ process paired_alignement {
 	input:
 	tuple val(sample), file(f1), file(f2)
 	tuple val(indexName), file(indexFiles)
+	tuple file(fasta), file(fai), file(dict)
 	val(results)
 
 	output:
@@ -26,6 +27,7 @@ process paired_alignement {
 	if(!params.target_region)
 		"""
 		bwa-mem2 mem -t ${task.cpus} $indexName $f1 $f2 -R "@RG\tID:$sample\tLB:LIB\tPL:Illumina\tPU:UNIT\tSM:$sample" 2>> $results/ALL_REPORTS/BAM/RAW/${sample}.align.log | \
+			samclip --ref ${fasta} | \
 			samtools view -@ ${task.cpus} -bSh -q 30 -F0x4 --no-PG 2>> $results/ALL_REPORTS/BAM/RAW/${sample}.align.log | \
 			samtools sort -@ ${task.cpus} --no-PG -o ${sample}.bam
 
@@ -37,6 +39,7 @@ process paired_alignement {
 	//filter out reads non overlapping with target regions
 		"""
 		bwa-mem2 mem -t ${task.cpus} $indexName $f1 $f2 -R "@RG\tID:$sample\tLB:LIB\tPL:Illumina\tPU:UNIT\tSM:$sample" 2>> $results/ALL_REPORTS/BAM/RAW/${sample}.align.log | \
+			samclip --ref ${fasta} | \
 			samtools view -@ ${task.cpus} -bSh -q 30 -F0x4 -L $region --no-PG 2>> $results/ALL_REPORTS/BAM/RAW/${sample}.align.log | \
 			samtools sort -@ ${task.cpus} --no-PG -o ${sample}.bam
 
@@ -53,6 +56,7 @@ process single_alignement {
 	input:
 	tuple val(sample), file(f1)
 	tuple val(indexName), file(indexFiles)
+	tuple file(fasta), file(fai), file(dict)
 	val(results)
 
 	output:
@@ -70,6 +74,7 @@ process single_alignement {
 	if(!params.target_region)
 		"""
 		bwa-mem2 mem -t ${task.cpus} $indexName $f1 -R "@RG\tID:$sample\tLB:LIB\tPL:Illumina\tPU:UNIT\tSM:$sample" 2>> $results/ALL_REPORTS/BAM/RAW/${sample}.align.log | \
+			samclip --ref ${fasta} | \
 			samtools view -@ ${task.cpus} -bSh -q 30 -F0x4 --no-PG 2>> $results/ALL_REPORTS/BAM/RAW/${sample}.align.log | \
 			samtools sort -@ ${task.cpus} --no-PG -o ${sample}.bam
 
@@ -81,6 +86,7 @@ process single_alignement {
 	//filter out reads non overlapping with target regions
 		"""
 		bwa-mem2 mem -t ${task.cpus} $indexName $f1 -R "@RG\tID:$sample\tLB:LIB\tPL:Illumina\tPU:UNIT\tSM:$sample" 2>> $results/ALL_REPORTS/BAM/RAW/${sample}.align.log | \
+			samclip --ref ${fasta} | \
 			samtools view -@ ${task.cpus} -bSh -q 30 -F0x4 --no-PG -L $region 2>> $results/ALL_REPORTS/BAM/RAW/${sample}.align.log | \
 			samtools sort -@ ${task.cpus} --no-PG -o ${sample}.bam
 
@@ -96,14 +102,15 @@ workflow align {
 	take: single_trimmed_fastq
 	take: paired_trimmed_fastq
 	take: bwa_index
+	take: samtools_index
 
 	main:
 		results = file(params.results)
 		file("$results/BAM/RAW").mkdirs()
 		file("$results/ALL_REPORTS/BAM/RAW").mkdirs()
 
-		paired_alignement(paired_trimmed_fastq, bwa_index, results)
-		single_alignement(single_trimmed_fastq, bwa_index, results)
+		paired_alignement(paired_trimmed_fastq, bwa_index, samtools_index, results)
+		single_alignement(single_trimmed_fastq, bwa_index, samtools_index, results)
 
 		//merge newly mapped bam channel with bam alread stored in the BAM_RAW folder into a new flux
 		if( mf.checkFORCE('MAP', params.FORCE) ){
