@@ -90,13 +90,15 @@ workflow download {
 
 		foreign_fastq_single = Channel.empty()
 		foreign_fastq_paired = Channel.empty()
-
+//.map{it -> [it.simpleName.split("_1\$|_2|\$|_R1|\$|_R2|\$")[0], it.findAll{ s -> s ==~ / _1 / }​ ]}.groupTuple().view()
 		if(params.fastq){
 			Channel.fromPath([params.fastq+"/*.{fq,fastq}.gz", results+"/FASTQ/RAW/*.{fq,fastq}.gz"], followLinks: true)
-				.map{it -> [it.simpleName.split("_1\$|_2\$")[0], it]}.groupTuple().branch{
+				.map{it -> [it.simpleName.split("\\.")[0], it ]}.groupTuple().map{it -> [ it[0].split("_")[0], it[1].flatten()[0] ] }.groupTuple()
+				.branch{
 					paired: it[1].size() == 2
 					single: it[1].size() == 1
 				}.set{ temp }
+//				.map{it -> [it.simpleName.split("_1\$|_2\$|_R1\$|_R2\$")[0], it ]}.groupTuple()
 		} else {
 			Channel.fromPath(results+"/FASTQ/RAW/*.{fq,fastq}.gz", followLinks: true)
 				.map{it -> [it.simpleName.split("_1.|_2.")[0], it]}.groupTuple().branch{

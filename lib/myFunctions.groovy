@@ -10,7 +10,13 @@ class myFunctions {
 	}
 
 	public static void createSymLink(String source, String destination){
-		"ln -s $source $destination".execute()
+		def baseName = source.replaceFirst(~/\.[^\.]+$/, '')
+		def query = "[ ! -f $destination ] && echo true"
+
+		if( query.execute() ){
+			"ln -s $source $destination".execute()
+		}
+
 	}
 
 	public static boolean checkFORCE(String step, String FORCE) {
