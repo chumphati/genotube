@@ -6,7 +6,7 @@ process removeFastq {
 	label 'script'
 
 	input:
-	val outalign
+	tuple val(sample), file("${sample}.bam")
 	val(results)
 
 	when:
@@ -14,7 +14,7 @@ process removeFastq {
 
 	script:
 	"""
-	rm ${results}/FASTQ/RAW/* ${results}/FASTQ/TRIMMED/*
+	rm ${results}/FASTQ/RAW/${sample}* ${results}/FASTQ/TRIMMED/${sample}*
 	"""
 }
 
@@ -22,7 +22,7 @@ process removeBam {
 	label 'script'
 
 	input:
-	val outvcf
+	tuple val(sample), file(vcf)
 	val(results)
 
 	when:
@@ -30,9 +30,9 @@ process removeBam {
 
 	script:
 	"""
-	rm ${results}/BAM/RAW/*
+	rm ${results}/BAM/RAW/${sample}*
 	if test -f '$results/BAM/FILTERED/*.bam'; then
-		rm ${results}/BAM/FILTERED/*
+		rm ${results}/BAM/FILTERED/${sample}*
 	fi
 	"""
 }
@@ -41,7 +41,7 @@ process removeVCF {
 	label 'script'
 
 	input:
-	val outallprocessvcf
+	tuple val(sample), file(vcf), file("all_strain_info.txt")
 	val(results)
 
 	when:
@@ -49,7 +49,7 @@ process removeVCF {
 
 	script:
 	"""
-	rm ${results}/VCF/RAW/* ${results}/VCF/FILTERED/*
+	rm ${results}/VCF/RAW/${sample}* ${results}/VCF/FILTERED/${sample}*
 	"""
 }
 
